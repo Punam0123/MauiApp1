@@ -1,0 +1,149 @@
+﻿@page "/Debt"
+@using MauiApp1.Models   <!-- Make sure this is correct -->
+@inject NavigationManager Navigation
+@inject UserService UserService
+
+<div class="overflow-x-auto shadow-md rounded-lg">
+    <!-- Add Debt Button -->
+    <div class="flex justify-end mb-4">
+        <button @onclick="ShowAddDebtModal" class="px-4 py-2 bg-blue-500 text-white rounded-md">
+            Add Debt
+        </button>
+    </div>
+
+    <!-- Table to Display Debts -->
+    <table class="min-w-full bg-white border border-gray-200">
+        <thead class="bg-gray-50 border-b-2 border-gray-200">
+            <tr>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Transaction ID</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Title</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Amount</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Date</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Description</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Action</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            @foreach (var debt in Debts)
+            {
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-2 text-sm text-gray-700">@debt.Id</td>
+                    <td class="px-4 py-2 text-sm text-gray-700">@debt.Title</td>
+                    <td class="px-4 py-2 text-sm text-gray-700">@debt.Amount</td>
+                    <td class="px-4 py-2 text-sm text-gray-700">@debt.Date.ToString("MM/dd/yyyy")</td>
+                    <td class="px-4 py-2 text-sm text-gray-700">@debt.Description</td>
+                    <td class="px-4 py-2 text-sm text-gray-700">
+                        <!-- Edit Button -->
+                        <button @onclick="() => EditDebt(debt)" class="px-3 py-2 bg-green-500 text-white rounded">Edit</button>
+                        <!-- Delete Button -->
+                        <button @onclick="() => DeleteDebt(debt)" class="px-3 py-2 bg-red-500 text-white rounded">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Form for Add/Edit Debt -->
+@if (isAddDebtModalOpen)
+{
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-md w-96">
+            <h2 class="text-xl font-semibold mb-4">@((isEditing ? "Edit" : "Add") + " Debt")</h2>
+            <div>
+                <label for="title" class="block text-sm font-medium text-gray-600">Title</label>
+                <input id="title" type="text" @bind="newDebt.Title" class="block w-full px-3 py-2 border border-gray-300 rounded-md mt-1 mb-4" />
+            </div>
+            <div>
+                <label for="amount" class="block text-sm font-medium text-gray-600">Amount</label>
+                <input id="amount" type="text" @bind="newDebt.Amount" class="block w-full px-3 py-2 border border-gray-300 rounded-md mt-1 mb-4" />
+            </div>
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-600">Description</label>
+                <textarea id="description" @bind="newDebt.Description" class="block w-full px-3 py-2 border border-gray-300 rounded-md mt-1 mb-4"></textarea>
+            </div>
+            <div class="flex justify-between">
+                <button @onclick="SaveDebt" class="px-4 py-2 bg-orange-500 text-white rounded-md">@((isEditing ? "Save" : "Add"))</button>
+                <button @onclick="CloseAddDebtModal" class="px-4 py-2 bg-gray-500 text-white rounded-md">Cancel</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<MauiApp1.Models.Debt> Debts { get; set; } = new List<MauiApp1.Models.Debt>();
+    private bool isAddDebtModalOpen = false;
+    private MauiApp1.Models.Debt newDebt = new MauiApp1.Models.Debt();
+    private bool isEditing = false;
+
+    protected override void OnInitialized()
+    {
+        var appData = UserService.LoadData();
+        if (appData != null)
+        {
+            Debts = appData.Debts;
+        }
+    }
+
+    private void ShowAddDebtModal()
+    {
+        isEditing = false;
+        newDebt = new MauiApp1.Models.Debt();
+        isAddDebtModalOpen = true;
+    }
+
+    private void EditDebt(MauiApp1.Models.Debt debt)
+    {
+        isEditing = true;
+        newDebt = debt;
+        isAddDebtModalOpen = true;
+    }
+
+    private void CloseAddDebtModal()
+    {
+        isAddDebtModalOpen = false;
+    }
+
+    private void SaveDebt()
+    {
+        if (!string.IsNullOrEmpty(newDebt.Title) && newDebt.Amount > 0)
+        {
+            if (!isEditing)
+            {
+                newDebt.Id = Guid.NewGuid();
+                newDebt.Date = DateTime.Now;
+                Debts.Add(newDebt);
+            }
+            else
+            {
+                var existingDebt = Debts.FirstOrDefault(d => d.Id == newDebt.Id);
+                if (existingDebt != null)
+                {
+                    existingDebt.Title = newDebt.Title;
+                    existingDebt.Amount = newDebt.Amount;
+                    existingDebt.Description = newDebt.Description;
+                    existingDebt.Date = newDebt.Date;
+                }
+            }
+
+            var appData = UserService.LoadData();
+            appData.Debts = Debts;
+            UserService.SaveData(appData);
+
+            newDebt = new MauiApp1.Models.Debt();
+            CloseAddDebtModal();
+        }
+    }
+
+    private void DeleteDebt(MauiApp1.Models.Debt debt)
+    {
+        if (debt != null)
+        {
+            Debts.Remove(debt);
+
+            var appData = UserService.LoadData();
+            appData.Debts = Debts;
+            UserService.SaveData(appData);
+        }
+    }
+}

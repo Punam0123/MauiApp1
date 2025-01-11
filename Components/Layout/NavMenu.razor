@@ -1,26 +1,49 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">MauiApp1</a>
+    <div class="container-fluid d-flex justify-content-between">
+        <i class="bi bi-currency-exchange"></i>
+        <span>Spend Sense</span>
     </div>
 </div>
 
+<!-- The Toggler Button for the Menu -->
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
+<!-- The Collapsible Navigation -->
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            <NavLink class="nav-link" href="dashboard" Match="NavLinkMatch.All">
+                <i class="bi bi-house-door" aria-hidden="true"></i> Dashboard
             </NavLink>
         </div>
+
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            <NavLink class="nav-link" href="mytransaction" Match="NavLinkMatch.All">
+                <i class="bi bi-card-list" aria-hidden="true"></i> Transaction
             </NavLink>
         </div>
+
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+            <NavLink class="nav-link" href="CashInflow" Match="NavLinkMatch.All">
+                <i class="bi bi-coin" aria-hidden="true"></i> Cash Inflow
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="CashOutflow" Match="NavLinkMatch.All">
+                <i class="bi bi-coin" aria-hidden="true"></i> Cash Outflow
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="Debt" Match="NavLinkMatch.All">
+                <i class="bi bi-journal-minus" aria-hidden="true"></i> Debt
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
+                <i class="bi bi-box-arrow-right" aria-hidden="true"></i> Log Out
             </NavLink>
         </div>
     </nav>

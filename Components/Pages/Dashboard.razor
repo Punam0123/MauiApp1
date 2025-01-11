@@ -1,0 +1,127 @@
+﻿@page "/dashboard"
+@using MauiApp1.Models
+@inject NavigationManager Navigation
+@using MauiApp1.Components.Layout
+@inject UserService UserService
+
+<div class="container-fluid p-6">
+    <!-- Greeting Section -->
+    <div class="mb-6">
+        <h3 class="text-2xl font-semibold text-gray-700">Hi, @UserName</h3>
+    </div>
+
+    <!-- Transaction Summary Section -->
+    <div class="bg-white shadow-lg rounded-lg p-6 mb-8">
+        <h5 class="text-xl font-bold text-gray-700 text-center mb-4">Transaction Summary</h5>
+        <div class="grid grid-cols-2 gap-6">
+            <!-- Total Cash Inflow -->
+            <div class="bg-gray-50 p-4 rounded-lg shadow">
+                <h6 class="text-sm font-semibold text-gray-700">Total Cash Inflow</h6>
+                <p class="text-xl text-green-600">@($"Rs {GetTotalCashInflow():F2}")</p> <!-- Use GetTotalCashInflow() method -->
+            </div>
+
+            <!-- Total Cash Outflow -->
+            <div class="bg-gray-50 p-4 rounded-lg shadow">
+                <h6 class="text-sm font-semibold text-gray-700">Total Cash Outflow</h6>
+                <p class="text-xl text-red-600">@($"Rs {GetTotalCashOutflow():F2}")</p> <!-- Use GetTotalCashOutflow() method -->
+            </div>
+
+            <!-- Total Debt -->
+            <div class="bg-gray-50 p-4 rounded-lg shadow">
+                <h6 class="text-sm font-semibold text-gray-700">Total Debt</h6>
+                <p class="text-xl text-blue-600">@($"Rs {GetTotalDebt():F2}")</p> <!-- Use GetTotalDebt() method -->
+            </div>
+
+            <!-- Remaining Debt -->
+            <div class="bg-gray-50 p-4 rounded-lg shadow">
+                <h6 class="text-sm font-semibold text-gray-700">Remaining Debt</h6>
+                <p class="text-xl text-yellow-600">@($"Rs {RemainingDebt:F2}")</p> <!-- Filtered Remaining Debt -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Total Balance and Date Filter in Top Right Corner -->
+<div class="absolute top-6 right-6 flex items-center space-x-4">
+    <!-- Total Balance -->
+    <div class="bg-orange-500 text-white py-2 px-6 w-48 rounded-lg shadow-lg">
+        <h4 class="text-md font-semibold">Total Balance</h4>
+        <p class="text-md">@($"Rs {TotalBalance:F2}")</p>
+    </div>
+
+    <!-- Date Filter -->
+    <div>
+        <input type="date" @bind="SelectedDate"
+               class="py-2 px-4 border rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600" />
+    </div>
+</div>
+
+@code {
+    private AppData? Data;  // Use nullable reference type
+    private List<User> Users = new List<User>();
+    private DateTime SelectedDate { get; set; } = DateTime.Now; // Default to today
+
+    private List<Transaction> Transactions => Data?.Transactions
+        .Where(t => t.Date.Date == SelectedDate.Date) // Filter transactions by selected date
+        .ToList() ?? new List<Transaction>();
+
+    // User Name (assuming UserService has a method to get the current user)
+    private string UserName => Users.FirstOrDefault()?.Username ?? "Guest";
+
+    // Get Total Cash Inflow from UserService
+    private decimal GetTotalCashInflow()
+    {
+        var appData = UserService.LoadData();
+        if (appData != null)
+        {
+            // Filter by selected date and sum credit amounts
+            return appData.Transactions
+                .Where(t => t.Credit > 0 && t.Date.Date == SelectedDate.Date)
+                .Sum(t => t.Credit);
+        }
+        return 0; // Return 0 if no transactions found or data is empty
+    }
+
+    // Get Total Cash Outflow
+    private decimal GetTotalCashOutflow()
+    {
+        var appData = UserService.LoadData();
+        if (appData != null)
+        {
+            // Filter by selected date and sum debit amounts
+            return appData.Transactions
+                .Where(t => t.Debit > 0 && t.Date.Date == SelectedDate.Date)
+                .Sum(t => t.Debit);
+        }
+        return 0; // Return 0 if no transactions found or data is empty
+    }
+
+    // Calculate Total Debt (Filtered by Selected Date)
+    private decimal GetTotalDebt()
+    {
+        var appData = UserService.LoadData();
+        if (appData != null)
+        {
+            // Filter debts by selected date (optional, if needed)
+            return appData.Debts
+                .Where(d => d.Date.Date == SelectedDate.Date && d.Amount > 0)
+                .Sum(d => d.Amount);
+        }
+        return 0; // Return 0 if no debts found or data is empty
+    }
+
+    // Calculate Remaining Debt (Filtered by Date)
+    private decimal RemainingDebt => GetTotalDebt() - GetTotalCashOutflow();
+
+    // Calculate Total Balance (Cash Inflow + Total Debt)
+    private decimal TotalBalance => GetTotalCashInflow() + GetTotalDebt();
+
+    protected override void OnInitialized()
+    {
+        // Initialize Data
+        Data = new AppData(); // Make sure Data is initialized
+
+        // Load users from UserService when the component is initialized
+        Users = UserService.LoadUsers();
+    }
+}
