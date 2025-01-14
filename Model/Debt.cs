@@ -10,10 +10,12 @@ namespace MauiApp1.Models
     {
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
+        public string Tags { get; set; }
 
         public string Title { get; set; }
         public decimal Amount { get; set; }
         public DateTime Date { get; set; }
+        public int PaidAmount { get; set; }
 
         public string Description { get; set; }
     }

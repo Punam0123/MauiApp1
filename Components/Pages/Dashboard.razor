@@ -7,52 +7,65 @@
 <div class="container-fluid p-6">
     <!-- Greeting Section -->
     <div class="mb-6">
-        <h3 class="text-2xl font-semibold text-gray-700">Hi, @UserName</h3>
+        <h3 class="text-2xl font-semibold text-gray-700">Welcome, @UserName</h3>
     </div>
 
     <!-- Transaction Summary Section -->
-    <div class="bg-white shadow-lg rounded-lg p-6 mb-8">
+    <div class="bg-white shadow-2xl rounded-lg p-6 mb-8 border border-gray-200">
         <h5 class="text-xl font-bold text-gray-700 text-center mb-4">Transaction Summary</h5>
-        <div class="grid grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <!-- Total Cash Inflow -->
-            <div class="bg-gray-50 p-4 rounded-lg shadow">
-                <h6 class="text-sm font-semibold text-gray-700">Total Cash Inflow</h6>
-                <p class="text-xl text-green-600">@($"Rs {GetTotalCashInflow():F2}")</p> <!-- Use GetTotalCashInflow() method -->
+            <div class="bg-green-50 p-4 rounded-lg shadow-xl flex items-center">
+                <i class="fas fa-arrow-up text-green-600 text-3xl mr-4"></i>
+                <div>
+                    <h6 class="text-sm font-semibold text-gray-700">Total Cash Inflow</h6>
+                    <p class="text-xl text-green-600">@($"Rs {GetTotalCashInflow():F2}")</p>
+                </div>
             </div>
 
             <!-- Total Cash Outflow -->
-            <div class="bg-gray-50 p-4 rounded-lg shadow">
-                <h6 class="text-sm font-semibold text-gray-700">Total Cash Outflow</h6>
-                <p class="text-xl text-red-600">@($"Rs {GetTotalCashOutflow():F2}")</p> <!-- Use GetTotalCashOutflow() method -->
+            <div class="bg-red-50 p-4 rounded-lg shadow-xl flex items-center">
+                <i class="fas fa-arrow-down text-red-600 text-3xl mr-4"></i>
+                <div>
+                    <h6 class="text-sm font-semibold text-gray-700">Total Cash Outflow</h6>
+                    <p class="text-xl text-red-600">@($"Rs {GetTotalCashOutflow():F2}")</p>
+                </div>
             </div>
 
             <!-- Total Debt -->
-            <div class="bg-gray-50 p-4 rounded-lg shadow">
-                <h6 class="text-sm font-semibold text-gray-700">Total Debt</h6>
-                <p class="text-xl text-blue-600">@($"Rs {GetTotalDebt():F2}")</p> <!-- Use GetTotalDebt() method -->
+            <div class="bg-blue-50 p-4 rounded-lg shadow-xl flex items-center">
+                <i class="fas fa-hand-holding-usd text-blue-600 text-3xl mr-4"></i>
+                <div>
+                    <h6 class="text-sm font-semibold text-gray-700">Total Debt</h6>
+                    <p class="text-xl text-blue-600">@($"Rs {GetTotalDebt():F2}")</p>
+                </div>
             </div>
 
             <!-- Remaining Debt -->
-            <div class="bg-gray-50 p-4 rounded-lg shadow">
-                <h6 class="text-sm font-semibold text-gray-700">Remaining Debt</h6>
-                <p class="text-xl text-yellow-600">@($"Rs {RemainingDebt:F2}")</p> <!-- Filtered Remaining Debt -->
+            <div class="bg-yellow-50 p-4 rounded-lg shadow-xl flex items-center">
+                <i class="fas fa-exclamation-circle text-yellow-600 text-3xl mr-4"></i>
+                <div>
+                    <h6 class="text-sm font-semibold text-gray-700">Remaining Debt</h6>
+                    <p class="text-xl text-yellow-600">@($"Rs {RemainingDebt:F2}")</p>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Total Balance and Date Filter in Top Right Corner -->
-<div class="absolute top-6 right-6 flex items-center space-x-4">
+<div class="absolute top-6 right-6 flex items-center space-x-6">
     <!-- Total Balance -->
-    <div class="bg-orange-500 text-white py-2 px-6 w-48 rounded-lg shadow-lg">
+    <div class="bg-purple-500 text-white py-2 px-6 w-48 rounded-lg shadow-lg transform hover:scale-105 transition-all">
         <h4 class="text-md font-semibold">Total Balance</h4>
         <p class="text-md">@($"Rs {TotalBalance:F2}")</p>
     </div>
 
     <!-- Date Filter -->
-    <div>
+    <div class="flex flex-col items-center">
+        <label for="dateFilter" class="text-sm font-semibold text-gray-700">Select Date</label>
         <input type="date" @bind="SelectedDate"
-               class="py-2 px-4 border rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600" />
+               class="py-2 px-4 border rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 mt-2" />
     </div>
 </div>
 
