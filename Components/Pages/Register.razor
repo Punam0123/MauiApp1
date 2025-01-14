@@ -5,15 +5,15 @@
 @using MauiApp1.Components.Layout
 @layout FirstLayout
 
-<div class="flex items-center justify-center min-h-screen bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600">
+<div class="flex items-center justify-center min-h-screen bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600">
     <div class="bg-white bg-opacity-20 backdrop-blur-lg shadow-xl rounded-2xl p-10 w-96 max-w-lg border border-opacity-30 border-white">
         <h4 class="text-2xl font-extrabold text-center text-white mb-6">Spend Sense</h4>
-        <h6 class="text-md font-bold text-center text-white mb-2">Create account to track your spend or transaction.</h6>
+        <h6 class="text-md font-bold text-center text-white mb-2">Create account to track your expences.</h6>
 
 
         @if (!string.IsNullOrEmpty(Message))
         {
-                <p class="text-Orange-300 text-sm mb-4 text-center">@Message</p>
+                <p class="text-white-300 text-sm mb-4 text-center">@Message</p>
         }
 
         <div class="space-y-6">
@@ -96,13 +96,13 @@
 
             <!-- Register Button -->
             <button @onclick="HandleRegistration"
-                    class="w-full bg-gradient-to-r from-yellow-500 via-teal-500 to-yellow-500 hover:from-yellow-600 hover:to-blue-600 text-white py-3 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-white-400 transition duration-300"
+                    class="w-full bg-gradient-to-r from-purple-500 via-teal-500 to-purple-500 hover:from-purple-600 hover:to-blue-600 text-white py-3 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-white-400 transition duration-300"
                     disabled="@(IsEmailValid == false)">
                 Register
             </button>
 
             <div class="text-center mt-6">
-                <a href="/" class="text-white text-sm hover:text-yellow-200 hover:underline">Already have account? Login</a>
+                <a href="/" class="text-white text-sm hover:text-purple-200 hover:underline">Already have account? Login</a>
             </div>
         </div>
     </div>
