@@ -1,0 +1,192 @@
+﻿@page "/mytransaction"
+@using MauiApp1.Models
+@inject UserService UserService
+@inject NavigationManager Navigation
+
+<h1 class="text-3xl font-bold mb-6">Transactions Details</h1>
+
+<!-- Search, Date, and Type Filter -->
+<div class="mb-4 flex justify-between items-center">
+    <div class="w-1/3">
+        <label for="search" class="block text-lg font-medium text-gray-800">Search:</label>
+        <InputText id="search" class="mt-2 block w-full px-4 py-3 border-2 border-gray-300 rounded-md" @bind-Value="searchTerm" placeholder="Search by Title or Tags" />
+    </div>
+    <div class="w-1/4">
+        <label for="filterDate" class="block text-lg font-medium text-gray-800">Filter by Date:</label>
+        <InputDate id="filterDate" class="mt-2 block w-full px-4 py-3 border-2 border-gray-300 rounded-md" @bind-Value="filterDate" />
+    </div>
+    <div class="w-1/4">
+        <label for="transactionType" class="block text-lg font-medium text-gray-800">Transaction Type:</label>
+        <InputSelect id="transactionType" class="mt-2 block w-full px-4 py-3 border-2 border-gray-300 rounded-md" @bind-Value="transactionType">
+            <option value="">All</option>
+            <option value="Credit">Credit</option>
+            <option value="Debit">Debit</option>
+        </InputSelect>
+    </div>
+</div>
+
+<div class="overflow-x-auto shadow-md rounded-lg">
+    <table class="min-w-full bg-white border border-gray-200">
+        <thead class="bg-gray-50 border-b-2 border-gray-200">
+            <tr>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Transaction ID</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Title</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Tags</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Debit</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Credit</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Debt</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Date</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Description</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-600">Action</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            @foreach (var transaction in FilteredTransactions)
+            {
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-2 text-sm text-gray-700">@transaction.Id</td>
+                        <td class="px-4 py-2 text-sm text-gray-700">@transaction.Title</td>
+                        <td class="px-4 py-2 text-sm text-gray-700">@transaction.Tags</td>
+                        <td class="px-4 py-2 text-sm text-red-500">@transaction.Debit.ToString("C")</td>
+                        <td class="px-4 py-2 text-sm text-green-500">@transaction.Credit.ToString("C")</td>
+                        <td class="px-4 py-2 text-sm text-green-500">@transaction.Debt.ToString("C")</td>
+                        <td class="px-4 py-2 text-sm text-gray-700">@transaction.Date.ToString("MM/dd/yyyy")</td>
+                        <td class="px-4 py-2 text-sm text-gray-700">@transaction.Description</td>
+                        <td class="px-4 py-2 text-sm">
+                            <button class="px-3 py-2 bg-green-500 text-white rounded" @onclick="() => ShowEditModal(transaction)">Edit</button>
+                            <button class="px-3 py-2 bg-red-500 text-white rounded" @onclick="() => DeleteTransaction(transaction.Id)">Delete</button>
+                        </td>
+                    </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal for editing -->
+@if (isModalOpen)
+{
+        <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div class="bg-white p-6 rounded-lg w-1/2">
+                <h3 class="text-2xl font-semibold mb-4">Edit Transaction</h3>
+                <div class="mb-4">
+                    <label for="title" class="block text-lg font-medium text-gray-800">Title:</label>
+                    <InputText id="title" class="mt-2 block w-full px-4 py-3 border-2 border-gray-300 rounded-md" @bind-Value="editTransaction.Title" />
+                </div>
+                <div class="mb-4">
+                    <label for="tags" class="block text-lg font-medium text-gray-800">Tags:</label>
+                    <InputText id="tags" class="mt-2 block w-full px-4 py-3 border-2 border-gray-300 rounded-md" @bind-Value="editTransaction.Tags" />
+                </div>
+                <div class="mb-4">
+                    <label for="debit" class="block text-lg font-medium text-gray-800">Debit:</label>
+                    <InputNumber id="debit" class="mt-2 block w-full px-4 py-3 border-2 border-gray-300 rounded-md" @bind-Value="editTransaction.Debit" />
+                </div>
+                <div class="mb-4">
+                    <label for="credit" class="block text-lg font-medium text-gray-800">Credit:</label>
+                    <InputNumber id="credit" class="mt-2 block w-full px-4 py-3 border-2 border-gray-300 rounded-md" @bind-Value="editTransaction.Credit" />
+                </div>
+                <div class="mb-4">
+                    <label for="debt" class="block text-lg font-medium text-gray-800">Debt:</label>
+                    <InputNumber id="debt" class="mt-2 block w-full px-4 py-3 border-2 border-gray-300 rounded-md" @bind-Value="editTransaction.Debt" />
+                </div>
+                <div class="mb-4">
+                    <label for="description" class="block text-lg font-medium text-gray-800">Description:</label>
+                    <InputText id="description" class="mt-2 block w-full px-4 py-3 border-2 border-gray-300 rounded-md" @bind-Value="editTransaction.Description" />
+                </div>
+                <div class="flex justify-end">
+                    <button class="px-4 py-2 bg-gray-500 text-white rounded mr-2" @onclick="CloseModal">Cancel</button>
+                    <button class="px-4 py-2 bg-blue-500 text-white rounded" @onclick="SaveTransaction">Save</button>
+                </div>
+            </div>
+        </div>
+}
+
+@code {
+    private AppData Data;
+    private Transaction editTransaction;
+    private bool isModalOpen = false;
+    private string searchTerm = "";
+    private DateTime? filterDate = null;
+    private string transactionType = "";
+
+    protected override void OnInitialized()
+    {
+        Data = UserService.LoadData();
+    }
+
+    private void ShowEditModal(Transaction transaction)
+    {
+        editTransaction = new Transaction
+            {
+                Id = transaction.Id,
+                Title = transaction.Title,
+                Tags = transaction.Tags,
+                Debit = transaction.Debit,
+                Credit = transaction.Credit,
+                Debt = transaction.Debt,
+                Date = transaction.Date,
+                Description = transaction.Description
+            };
+        isModalOpen = true;
+    }
+
+    private void CloseModal()
+    {
+        isModalOpen = false;
+    }
+
+    private void SaveTransaction()
+    {
+        var transaction = Data.Transactions.FirstOrDefault(t => t.Id == editTransaction.Id);
+        if (transaction != null)
+        {
+            transaction.Title = editTransaction.Title;
+            transaction.Debit = editTransaction.Debit;
+            transaction.Credit = editTransaction.Credit;
+            transaction.Debt = editTransaction.Debt; // Save the Debt
+            transaction.Description = editTransaction.Description;
+            UserService.SaveData(Data);
+        }
+        isModalOpen = false;
+        StateHasChanged();
+    }
+
+    private void DeleteTransaction(Guid transactionId)
+    {
+        var transaction = Data.Transactions.FirstOrDefault(t => t.Id == transactionId);
+        if (transaction != null)
+        {
+            Data.Transactions.Remove(transaction);
+            UserService.SaveData(Data);
+            StateHasChanged();
+        }
+    }
+
+    // Property to filter transactions based on search term, date, and type
+    private IEnumerable<Transaction> FilteredTransactions
+    {
+        get
+        {
+            var query = Data.Transactions.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(t => t.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                                         t.Tags.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (filterDate.HasValue)
+            {
+                query = query.Where(t => t.Date.Date == filterDate.Value.Date);
+            }
+
+            if (!string.IsNullOrEmpty(transactionType))
+            {
+                query = transactionType == "Credit"
+                    ? query.Where(t => t.Credit > 0)
+                    : query.Where(t => t.Debit > 0);
+            }
+
+            return query;
+        }
+    }
+}

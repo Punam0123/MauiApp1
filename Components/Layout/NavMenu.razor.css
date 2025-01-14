@@ -1,9 +1,9 @@
 /* Navbar Title Styling */
 .top-row {
     height: 3.5rem;
-    background-color: darkorange; /* Change background color to orange */
+    background-color: rebeccapurple; 
     display: flex;
-    color: white;
+    color: black;
     align-items: center; /* Center vertically */
     padding-left: 1rem;
 }
@@ -12,7 +12,6 @@
         font-size: 1rem; /* Reduced font size */
         font-weight: bold;
         color: white; /* White text for better contrast */
-        margin-left: 5px; /* Smaller space between the icon and the text */
     }
 
 /* Navbar Toggler Button */
@@ -28,7 +27,7 @@
 }
 
     .navbar-toggler:checked {
-        background-color: orange;
+        background-color: mediumpurple;
     }
 
 /* Navigation Items */
@@ -46,7 +45,7 @@
     }
 
     .nav-item ::deep a {
-        color: white;
+        color: black;
         border-radius: 4px;
         height: 3rem;
         display: flex;
@@ -60,19 +59,19 @@
         }
 
         .nav-item ::deep a.active {
-            background-color: antiquewhite;
+            background-color: mediumpurple;
             margin-left: 5px;
         }
 
         .nav-item ::deep a:hover {
-            background-color: antiquewhite;
+            background-color: mediumpurple;
             margin-left: 5px;
         }
 
 /* Collapsible Navigation */
 .nav-scrollable {
     display: none;
-    color: orange;
+    color: mediumpurple;
 }
 
 .navbar-toggler:checked ~ .nav-scrollable {
@@ -89,6 +88,6 @@
         display: block;
         height: calc(100vh - 3.5rem);
         overflow-y: auto;
-        color: orange
+        color: mediumpurple
     }
 }
