@@ -3,52 +3,52 @@
 @inject NavigationManager Navigation
 @inject UserService UserService
 
-<h3 class="text-4xl font-bold mb-8 text-center text-orange-900">Cash Outflow</h3>
+<h3 class="text-2xl font-bold mb-5 text-center text-black-700">Add Cash Outflow</h3>
 
-<form class="space-y-8 bg-white p-10 rounded-xl shadow-2xl max-w-2xl mx-auto" @onsubmit="HandleFormSubmit">
+<form class="space-y-5 bg-white p-6 rounded-lg shadow-md max-w-md mx-auto" @onsubmit="HandleFormSubmit">
     <div>
-        <label for="title" class="block text-lg font-medium text-gray-800">Title:</label>
+        <label for="title" class="block text-md font-medium text-gray-800">Title:</label>
         <input type="text" id="title" name="title" @bind="Title" required
-               class="mt-3 block w-full px-6 py-4 border-2 border-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition duration-300" />
+               class="mt-2 block w-full px-4 py-3 border-2 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-300" />
         @if (!string.IsNullOrEmpty(TitleError))
         {
-            <div class="text-red-600 text-sm mt-1">@TitleError</div>
+            <div class="text-red-500 text-sm mt-1">@TitleError</div>
         }
     </div>
 
     <div>
-        <label for="tags" class="block text-lg font-medium text-gray-800">Tags:</label>
+        <label for="tags" class="block text-md font-medium text-gray-800">Tags:</label>
         <input type="text" id="tags" name="tags" @bind="Tags" required
-               class="mt-3 block w-full px-6 py-4 border-2 border-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition duration-300" />
+               class="mt-2 block w-full px-4 py-3 border-2 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-300" />
         @if (!string.IsNullOrEmpty(TagsError))
         {
-            <div class="text-red-600 text-sm mt-1">@TagsError</div>
+            <div class="text-red-500 text-sm mt-1">@TagsError</div>
         }
     </div>
 
     <div>
-        <label for="debit" class="block text-lg font-medium text-gray-800">Debit:</label>
+        <label for="debit" class="block text-md font-medium text-gray-800">Debit:</label>
         <input type="number" id="debit" name="debit" @bind="Debit" required
-               class="mt-3 block w-full px-6 py-4 border-2 border-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition duration-300"
+               class="mt-2 block w-full px-4 py-3 border-2 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-300"
                step="any" min="0" />
         @if (!string.IsNullOrEmpty(DebitError))
         {
-            <div class="text-red-600 text-sm mt-1">@DebitError</div>
+            <div class="text-red-500 text-sm mt-1">@DebitError</div>
         }
     </div>
 
     <div>
-        <label for="description" class="block text-lg font-medium text-gray-800">Description:</label>
-        <textarea id="description" name="description" @bind="Description" rows="4" required
-                  class="mt-3 block w-full px-6 py-4 border-2 border-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-orange-600 focus:border-orange-600 transition duration-300"></textarea>
+        <label for="description" class="block text-md font-medium text-gray-800">Description:</label>
+        <textarea id="description" name="description" @bind="Description" rows="3" required
+                  class="mt-2 block w-full px-4 py-3 border-2 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-300"></textarea>
         @if (!string.IsNullOrEmpty(DescriptionError))
         {
-            <div class="text-red-600 text-sm mt-1">@DescriptionError</div>
+            <div class="text-red-500 text-sm mt-1">@DescriptionError</div>
         }
     </div>
 
     <div class="flex justify-center">
-        <button type="submit" class="px-8 py-3 bg-orange-600 text-black font-semibold rounded-lg shadow-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition duration-300 ease-in-out transform hover:scale-105">
+        <button type="submit" class="px-6 py-3 bg-purple-500 text-white font-semibold rounded-md shadow-md hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-1 transition duration-300 ease-in-out transform hover:scale-105">
             Submit
         </button>
     </div>
@@ -76,7 +76,7 @@
             <h2 class="text-2xl font-bold text-center text-red-600">Insufficient Balance</h2>
             <p class="mt-4 text-center text-gray-700">Your balance is insufficient for cash outflow. Make balance sufficient</p>
             <div class="mt-6 flex justify-center space-x-4">
-                <button class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-orange-700 transition duration-200" @onclick="RedirectToLoanPage">Apply for Loan</button>
+                <button class="px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition duration-200" @onclick="RedirectToLoanPage">Apply for Loan</button>
                 <button class="px-8 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition duration-200" @onclick="CloseInsufficientBalancePopup">Cancel</button>
             </div>
         </div>
