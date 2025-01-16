@@ -13,10 +13,28 @@
     </div>
 
     <div>
-        <label for="tags" class="block text-md font-medium text-gray-800">Tags:</label>
-        <input type="text" id="tags" name="tags" @bind="Tags" required
-               class="mt-2 block w-full px-4 py-3 border-2 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500" />
+        <label for="tags" class="block text-lg font-medium text-gray-800">Tags:</label>
+        <select id="tags" name="tags" @bind="Tags" required
+                class="mt-3 block w-full px-6 py-4 border-2 border-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 transition duration-300">
+            <option value="">Select a Tags</option>
+            <option value="Yearly">Yearly</option>
+            <option value="Monthly">Monthly</option>
+            <option value="Food">Food</option>
+            <option value="Drink">Drink</option>
+            <option value="Clothes">Clothes</option>
+            <option value="Gadgets">Gadgets</option>
+            <option value="Miscellaneous">Miscellaneous</option>
+            <option value="Fuel">Fuel</option>
+            <option value="Rent">Rent</option>
+            <option value="EMI">EMI</option>
+            <option value="Party">Party</option>
+        </select>
+        @if (!string.IsNullOrEmpty(TagsError))
+        {
+            <div class="text-red-600 text-sm mt-1">@TagsError</div>
+        }
     </div>
+
 
     <div>
         <label for="credit" class="block text-md font-medium text-gray-800">Credit:</label>
@@ -45,6 +63,7 @@
     private decimal Credit { get; set; }
     private string Description { get; set; }
     private int CurrentUserId { get; set; }
+    private string TagsError { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -54,12 +73,18 @@
 
     private async Task HandleCashInflow()
     {
+        TagsError = null;
+
         // Validate input fields
         if (string.IsNullOrWhiteSpace(Title) || string.IsNullOrWhiteSpace(Tags) || Credit <= 0 || string.IsNullOrWhiteSpace(Description))
         {
-            return; // Handle validation failure as needed
+            if (string.IsNullOrWhiteSpace(Tags))
+            {
+                TagsError = "Please select a valid tag.";
+            }
+            return;
         }
-
+      
         // Create a new Transaction
         var transaction = new Transaction
             {
