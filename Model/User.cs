@@ -16,6 +16,6 @@ namespace MauiApp1.Models
         public required string FullName { get; set; }
         public required string ContactNumber { get; set; }
         public string Currency { get; set; } = "NRP";
-        public Guid Id { get; internal set; }
+
     }
 }

@@ -1,22 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MauiApp1.Models
 {
     public class Debt
     {
-        public Guid Id { get; set; }
-        public Guid UserId { get; set; }
-        public string Tags { get; set; }
+        public int Id { get; set; }  // Debt ID (auto-incremented)
 
-        public string Title { get; set; }
-        public decimal Amount { get; set; }
-        public DateTime Date { get; set; }
-        public int PaidAmount { get; set; }
-
-        public string Description { get; set; }
+        [ForeignKey("UserId")]
+        public int UserId { get; set; }  // User ID associated with the debt
+        public decimal Amount { get; set; }  // Amount of the debt
+        public decimal PaidAmount { get; set; }  // Amount already paid
+        public DateTime Date { get; set; }  // Date when the debt was created
+        public string Description { get; set; }  // Description of the debt
     }
 }

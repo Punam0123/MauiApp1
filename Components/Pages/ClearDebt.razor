@@ -1,0 +1,64 @@
+﻿@page "/ClearDebt"
+@using MauiApp1.Models
+@inject UserService UserService
+@inject NavigationManager Navigation
+
+<h3 class="text-2xl font-semibold text-center mb-6">Clear Your Debt</h3>
+
+<div class="max-w-md mx-auto p-6 bg-gray-100 rounded-lg shadow">
+    <form>
+        <div class="mb-4">
+            <label for="paidAmount" class="block text-gray-700 font-medium mb-2">Enter Amount:</label>
+            <input type="number" id="paidAmount" @bind="PaidAmount" class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-400" step="0.01" min="0" required />
+        </div>
+
+        <button type="button" @onclick="DebtClear" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-400">
+            Clear Debt
+        </button>
+    </form>
+</div>
+
+@code {
+    private decimal PaidAmount { get; set; }
+    private int LoggedInUserId { get; set; } = 1;
+
+    private void DebtClear()
+    {
+        var userDebts = UserService.GetDebtsByUserId(LoggedInUserId);
+
+        // Check for outstanding debts
+        var firstOutstandingDebt = userDebts.FirstOrDefault(d => d.PaidAmount < d.Amount);
+        if (firstOutstandingDebt == null)
+        {
+            Console.WriteLine("No outstanding debts to clear.");
+            return;
+        }
+
+        if (PaidAmount <= 0)
+        {
+            Console.WriteLine("Please enter a valid amount.");
+            return;
+        }
+
+        var remainingDebt = firstOutstandingDebt.Amount - firstOutstandingDebt.PaidAmount;
+
+        if (PaidAmount >= remainingDebt)
+        {
+            // Fully clear this debt
+            firstOutstandingDebt.PaidAmount = firstOutstandingDebt.Amount;
+            UserService.RemoveDebt(firstOutstandingDebt.Id);
+            Console.WriteLine($"Debt {firstOutstandingDebt.Description} fully cleared.");
+        }
+        else
+        {
+            // Partially clear this debt
+            firstOutstandingDebt.PaidAmount += PaidAmount;
+            UserService.SaveDebts(userDebts);
+            Console.WriteLine($"Debt {firstOutstandingDebt.Description} updated. Remaining: {firstOutstandingDebt.Amount - firstOutstandingDebt.PaidAmount:C}");
+        }
+
+        PaidAmount = 0;
+
+        Navigation.NavigateTo("/dashboard");
+    }
+}

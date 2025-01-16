@@ -5,82 +5,98 @@
 
 <h3 class="text-3xl font-bold mb-8 text-center text-black-700">Take Debt</h3>
 
-<form class="space-y-4 bg-white p-6 rounded-lg shadow-md max-w-md mx-auto">
-    <div>
-        <label for="title" class="block text-md font-medium text-gray-800">Title:</label>
-        <input type="text" id="title" name="title" @bind="Title" required
-               class="mt-1 block w-full px-3 py-2 border-2 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
-    </div>
-
-    <div>
-        <label for="tags" class="block text-md font-medium text-gray-800">Tags:</label>
-        <input type="text" id="tags" name="tags" @bind="Tags" required
-               class="mt-1 block w-full px-3 py-2 border-2 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
-    </div>
-
-    <div>
-        <label for="amount" class="block text-md font-medium text-gray-800">Amount:</label>
-        <input type="number" id="amount" name="amount" @bind="Amount" required
-               class="mt-1 block w-full px-3 py-2 border-2 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-               step="any" min="0" />
-    </div
-
-    <div>
-        <label for="description" class="block text-md font-medium text-gray-800">Description:</label>
-        <textarea id="description" name="description" @bind="Description" rows="3" required
-                  class="mt-1 block w-full px-3 py-2 border-2 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"></textarea>
-    </div>
-
-    <div class="flex justify-center">
-        <button type="button" @onclick="HandleCashInflow" class="px-5 py-2 bg-purple-500 text-white font-semibold rounded-md shadow-md hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-1 transition duration-300 ease-in-out transform hover:scale-105">
-            Submit
+@if (HasOutstandingDebt)
+{
+    <div class="text-center text-red-600 font-semibold">
+        <p>You already have an outstanding debt of <strong>@TotalDebt</strong>. Please pay it off before taking another debt.</p>
+        <button class="mt-4 px-5 py-2 bg-purple-500 text-white font-semibold rounded-md shadow-md hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-1 transition duration-300 ease-in-out transform hover:scale-105"
+                @onclick="NavigateToDebtDetails">
+            View Your Debt
         </button>
     </div>
+}
+else
+{
+    <form class="space-y-4 bg-white p-6 rounded-lg shadow-md max-w-md mx-auto">
+        <div>
+            <label for="amount" class="block text-md font-medium text-gray-800">Amount:</label>
+            <input type="number" id="amount" name="amount" @bind="Amount" required
+                   class="mt-1 block w-full px-3 py-2 border-2 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                   step="any" min="0" />
+        </div>
 
-</form>
+        <div>
+            <label for="description" class="block text-md font-medium text-gray-800">Description:</label>
+            <textarea id="description" name="description" @bind="Description" rows="3" required
+                      class="mt-1 block w-full px-3 py-2 border-2 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"></textarea>
+        </div>
 
+        <div class="flex justify-center">
+            <button type="button" @onclick="HandleTakeDebt" class="px-5 py-2 bg-purple-500 text-white font-semibold rounded-md shadow-md hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-1 transition duration-300 ease-in-out transform hover:scale-105">
+                Submit Debt
+            </button>
+        </div>
+    </form>
+}
 
 @code {
-    private string Title { get; set; }
-    private string Tags { get; set; }
     private decimal Amount { get; set; }
     private string Description { get; set; }
+    private bool HasOutstandingDebt { get; set; } = false;
+    private decimal TotalDebt { get; set; } = 0; // Store the total debt amount
+    private int LoggedInUserId { get; set; } = 1; // Replace with actual logged-in user ID from authentication
 
-
-    private async Task HandleCashInflow()
+    protected override async Task OnInitializedAsync()
     {
-        // Validate input fields
-        if (string.IsNullOrWhiteSpace(Title) || string.IsNullOrWhiteSpace(Tags) || Amount <= 0 || string.IsNullOrWhiteSpace(Description))
+        // Check if the user has any outstanding debt
+        HasOutstandingDebt = await UserService.HasOutstandingDebtAsync(LoggedInUserId);
+
+        if (HasOutstandingDebt)
         {
-            return; // Handle validation failure as needed
+            // Fetch total debt amount
+            TotalDebt = await UserService.GetTotalDebtAmountAsync(LoggedInUserId);
         }
+    }
 
-        // Create a new Transaction for Cash Inflow
-        var transaction = new Transaction
+    private async Task HandleTakeDebt()
+    {
+        try
+        {
+            // Validate input fields
+            if (Amount <= 0 || string.IsNullOrWhiteSpace(Description))
             {
-                Id = Guid.NewGuid(),
-                UserId = Guid.NewGuid(), // Replace with the logged-in user's ID if applicable
-                Title = Title,
-                Tags = Tags,
-                Debit = 0,  // No debit for cash inflows
-                Credit = 0, // This is the inflow
-                Debt = Amount, // No debt involved in cash inflow
-                Description = Description,
-                Date = DateTime.Now
-            };
+                return; // Handle validation failure as needed
+            }
 
-        // Load existing data and add the new transaction
-        var appData = UserService.LoadData();
-        appData.Transactions.Add(transaction); // Add the transaction to Transactions list
+            // Create a new Debt object
+            var debt = new MauiApp1.Models.Debt
+                {
+                    UserId = LoggedInUserId,  // Use the logged-in user's ID
+                    Amount = Amount,
+                    PaidAmount = 0,  // Initially no amount is paid
+                    Description = Description,
+                    Date = DateTime.Now
+                };
 
-        // Save updated data
-        UserService.SaveData(appData);
+            // Add debt to the data (this also saves the data)
+            await UserService.AddDebtAsync(debt);
 
-        // Show a success message
-        // You could use a notification or a simple alert
-        Console.WriteLine("Cash inflow submitted successfully!"); // You can use a Toast or Snackbar for a better UX.
+            // Show a success message (consider using a Toast/Snackbar for better UX)
+            Console.WriteLine("Debt submitted successfully!");
 
-        // Navigate to the transactions page
-        Navigation.NavigateTo("/mytransaction");
+            // Navigate to the debts page
+            Navigation.NavigateTo("/dashboard");
+        }
+        catch (Exception ex)
+        {
+            // Handle the exception and log it
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+
+    private void NavigateToDebtDetails()
+    {
+        // Navigate to a page showing the user's debt details
+        Navigation.NavigateTo("/dashboard");
     }
 }

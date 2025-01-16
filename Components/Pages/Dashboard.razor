@@ -1,13 +1,29 @@
 ﻿@page "/dashboard"
 @using MauiApp1.Models
 @inject NavigationManager Navigation
-@using MauiApp1.Components.Layout
 @inject UserService UserService
 
 <div class="container-fluid p-6">
     <!-- Greeting Section -->
     <div class="mb-6">
         <h3 class="text-2xl font-semibold text-gray-700">Welcome, @UserName</h3>
+    </div>
+
+
+    <!-- Total Balance and Date Filter in Top Right Corner -->
+    <div class="absolute top-6 right-6 flex items-center space-x-6">
+        <!-- Total Balance -->
+        <div class="bg-purple-500 text-white py-2 px-6 w-48 rounded-lg shadow-lg transform hover:scale-105 transition-all">
+            <h4 class="text-md font-semibold">Total Balance</h4>
+            <p class="text-md">@($"Rs {TotalBalance:F2}")</p>
+        </div>
+
+        <!-- Date Filter -->
+        <div class="flex flex-col items-center">
+            <label for="dateFilter" class="text-sm font-semibold text-gray-700">Select Date</label>
+            <input type="date" @bind="SelectedDate"
+                   class="py-2 px-4 border rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 mt-2" />
+        </div>
     </div>
 
     <!-- Transaction Summary Section -->
@@ -40,7 +56,6 @@
                     <p class="text-xl text-purple-600">@($"Rs {GetTotalDebt():F2}")</p>
                 </div>
             </div>
-
             <!-- Remaining Debt -->
             <div class="bg-blue-50 p-4 rounded-lg shadow-xl flex items-center">
                 <i class="fas fa-exclamation-circle text-blue-600 text-3xl mr-4"></i>
@@ -60,22 +75,33 @@
             </div>
         </div>
     </div>
-</div>
 
 
-<!-- Total Balance and Date Filter in Top Right Corner -->
-<div class="absolute top-6 right-6 flex items-center space-x-6">
-    <!-- Total Balance -->
-    <div class="bg-purple-500 text-white py-2 px-6 w-48 rounded-lg shadow-lg transform hover:scale-105 transition-all">
-        <h4 class="text-md font-semibold">Total Balance</h4>
-        <p class="text-md">@($"Rs {TotalBalance:F2}")</p>
-    </div>
+    <!-- Highest/Lowest Transactions Section -->
+    <div class="bg-white shadow-2xl rounded-lg p-6 mb-8 border border-gray-200">
+        <h5 class="text-xl font-bold text-gray-700 text-center mb-4">Transaction Highlights</h5>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <!-- Highest Inflow -->
+            <div class="bg-green-50 p-4 rounded-lg shadow-xl">
+                <h6 class="text-sm font-semibold text-gray-700">Highest Inflow</h6>
+                <p class="text-md text-gray-700">@HighestInflow?.Title</p>
+                <p class="text-lg text-green-600">@($"Rs {HighestInflow?.Credit:F2}")</p>
+            </div>
 
-    <!-- Date Filter -->
-    <div class="flex flex-col items-center">
-        <label for="dateFilter" class="text-sm font-semibold text-gray-700">Select Date</label>
-        <input type="date" @bind="SelectedDate"
-               class="py-2 px-4 border rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 mt-2" />
+            <!-- Highest Outflow -->
+            <div class="bg-red-50 p-4 rounded-lg shadow-xl">
+                <h6 class="text-sm font-semibold text-gray-700">Highest Outflow</h6>
+                <p class="text-md text-gray-700">@HighestOutflow?.Title</p>
+                <p class="text-lg text-red-600">@($"Rs {HighestOutflow?.Debit:F2}")</p>
+            </div>
+
+            <!-- Highest Debt -->
+            <div class="bg-purple-50 p-4 rounded-lg shadow-xl">
+                <h6 class="text-sm font-semibold text-gray-700">Highest Debt</h6>
+                <p class="text-md text-gray-700">@HighestDebt?.Description</p>
+                <p class="text-lg text-purple-600">@($"Rs {HighestDebt?.Amount:F2}")</p>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -83,35 +109,60 @@
     private AppData? Data;
     private List<User> Users = new List<User>();
     private DateTime SelectedDate { get; set; } = DateTime.Now;
+    private int LoggedInUserId { get; set; } = 1; // Replace with actual logged-in user ID from authentication
+    private string UserName => Users.FirstOrDefault()?.Username ?? "Guest";
+    private decimal TotalDebt { get; set; } = 0; // Store the total debt amount
+    private Transaction? HighestInflow { get; set; }
+    private Transaction? HighestOutflow { get; set; }
+    private MauiApp1.Models.Debt? HighestDebt { get; set; }
 
     private List<Transaction> Transactions => Data?.Transactions
-        .Where(t => t.Date.Date == SelectedDate.Date)
+        .Where(t => t.Date.Date == SelectedDate.Date) // Filter transactions by SelectedDate
         .ToList() ?? new List<Transaction>();
 
-    private string UserName => Users.FirstOrDefault()?.Username ?? "Guest";
-
-    private decimal GetTotalCashInflow() => UserService.LoadData()?.Transactions
-        .Where(t => t.Credit > 0 && t.Date.Date == SelectedDate.Date)
+    private decimal GetTotalCashInflow() => Data?.Transactions
+        .Where(t => t.Credit > 0 && t.Date.Date == SelectedDate.Date) // Filter cash inflows by SelectedDate
         .Sum(t => t.Credit) ?? 0;
 
-    private decimal GetTotalCashOutflow() => UserService.LoadData()?.Transactions
-        .Where(t => t.Debit > 0 && t.Date.Date == SelectedDate.Date)
+    private decimal GetTotalCashOutflow() => Data?.Transactions
+        .Where(t => t.Debit > 0 && t.Date.Date == SelectedDate.Date) // Filter cash outflows by SelectedDate
         .Sum(t => t.Debit) ?? 0;
 
-    private decimal GetTotalDebt() => UserService.LoadData()?.Debts
-        .Where(d => d.Date.Date == SelectedDate.Date && d.Amount > 0)
+    private decimal GetTotalDebt() => Data?.Debts
+        .Where(d => d.Date.Date == SelectedDate.Date) // Filter debts by SelectedDate
         .Sum(d => d.Amount) ?? 0;
 
-    // Updated Remaining Debt Calculation
-    private decimal RemainingDebt => Math.Max(GetTotalDebt() - GetTotalCashOutflow(), 0);
+    private decimal RemainingDebt => Math.Max(GetTotalDebt() - GetTotalPaidAmount(), 0);
 
-    private decimal TotalBalance => GetTotalCashInflow() + GetTotalDebt();
+    private decimal GetTotalPaidAmount() => Data?.Debts
+        .Where(d => d.UserId == LoggedInUserId && d.Date.Date == SelectedDate.Date) // Filtering paid amounts by SelectedDate
+        .Sum(d => d.PaidAmount) ?? 0;
 
-    private int GetTotalTransactions() => UserService.LoadData()?.Transactions.Count ?? 0;
+    private decimal TotalBalance => GetTotalCashInflow() + GetTotalDebt(); // Total balance
+
+    private int GetTotalTransactions() => Transactions.Count; // This already applies the date filter from Transactions
 
     protected override void OnInitialized()
     {
-        Data = new AppData();
+        Data = UserService.LoadData();
         Users = UserService.LoadUsers();
+        CalculateHighestTransactions();
+    }
+
+    private void CalculateHighestTransactions()
+    {
+        HighestInflow = Transactions
+            .OrderByDescending(t => t.Credit)
+            .FirstOrDefault();
+
+        HighestOutflow = Transactions
+            .OrderByDescending(t => t.Debit)
+            .FirstOrDefault();
+
+        HighestDebt = Data?.Debts
+             .Where(d => d.Date.Date == SelectedDate.Date) // Filter debts by SelectedDate
+             .OrderByDescending(d => d.Amount)
+             .FirstOrDefault();
     }
 }
+
